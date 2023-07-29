@@ -1,15 +1,22 @@
 "use client";
 import {HiHome} from "react-icons/hi";
 import {BiSearch} from "react-icons/bi";
-interface Props {
-  children: React.ReactNode;
-}
 import {usePathname} from "next/navigation";
 import {useMemo} from "react";
 import Box from "./Box";
 import SidebarItem from "./SidebarItem";
 import Library from "./Library";
-function Sidebar({children}: Props) {
+import {Song} from "@/actions/getSongs";
+import usePlayer from "@/hooks/usePlayer";
+import {twMerge} from "tailwind-merge";
+interface Props {
+  children: React.ReactNode;
+  songs: Song[];
+}
+
+function Sidebar({children, songs}: Props) {
+  const player = usePlayer();
+
   const pathname = usePathname();
   const routes = useMemo(
     () => [
@@ -30,7 +37,12 @@ function Sidebar({children}: Props) {
     [pathname]
   );
   return (
-    <div className="flex h-full">
+    <div
+      className={twMerge(
+        `flex h-full`,
+        player.activeId && "h-[calc(100%-80px)]"
+      )}
+    >
       <div className="hidden md:flex flex-col gap-y-2 h-full w-[300px] p-2 bg-black">
         <Box>
           <div className="flex flex-col gap-y-4 px-5 py-4">
@@ -46,7 +58,7 @@ function Sidebar({children}: Props) {
           </div>
         </Box>
         <Box className="overflow-y-auto h-full">
-          <Library />
+          <Library songs={songs} />
         </Box>
       </div>
       <main className="h-full flex-1 overflow-y-auto py-2">{children}</main>
